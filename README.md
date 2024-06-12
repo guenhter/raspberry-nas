@@ -1,6 +1,8 @@
-# Raspberry as NAS Setup
+# RaspberryPI as NAS
 
-Configures a raspberry pi as private NAS
+![raspberry pi nas](resources/overview.png "Raspberry PI NAS")
+
+This repos setup a Raspberry Pi as private simple NAS.
 
 Some key concepts for the NAS
 * SFTP is the main transport protocol to get data to and from the NAS
@@ -10,11 +12,26 @@ Some key concepts for the NAS
 
 
 Limitations:
+* OS Setup of the Raspberry Pi is out of scope of this script
+* (vanilla) OS must be installed
 * Only one external hard drive is (currently) supported
 * No RAID suppoted
 * BTRFS is required as file system for the external drive
 * Windows user need to install some additional software to access SFTP (see below)
 
+
+# Setup
+
+To setup everything, make sure you have the external disk connected which should be used as NAS disk.
+
+1. Transfer the content of this repository to the Raspberry Pi
+1. (Run the destructive script `9-format-disk.sh` if the hard drive is not yet formatted as BTRFS)
+1. Define the parameters in `parameters.sh`
+1. Run `1-host-setup.sh`
+1. Run `2-nas-setup.sh`
+1. Run `3-nas-user-setup.sh`
+
+Your Raspberry Pi is now a simple slim NAS ♥♥♥
 
 ## Script Description
 
@@ -24,6 +41,13 @@ In this script, some these important variables are defined:
 
 * DISK_FULL_UUID_PATH
 * DISK_FULL_MOUNT_PATH
+
+e.g.
+
+```
+DISK_FULL_UUID_PATH="/dev/disk/by-uuid/3980ec2e-6fe3-4c63-8754-18c8ca394446"
+DISK_FULL_MOUNT_PATH="/mnt/backup"
+```
 
 This is needed for the following scripts.
 
@@ -52,12 +76,11 @@ The `parameters.sh` script is mandatory.
 
 Formats and prepares the passed disk to be usable for the NAS
 
-WARNING:
-
-All data on the disk is lost
+WARNING: ALL DATA ON THE EXTERNAL HARD DRIVE WILL BE LOST WHEN RUNNING THIS SCRIPT
 
 
-## Folder Structure
+
+## External Drive Folder Structure
 
 The hard drive for the NAS has the following folder structure:
 
