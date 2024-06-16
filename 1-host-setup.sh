@@ -4,6 +4,11 @@ set -e
 
 HD_IDLE_VERSION=1.21
 
+if [ "$EUID" -ne 0 ]; then
+  echo "This script must be run as root." >&2
+  exit 1
+fi
+
 function disable_sudo_without_password() {
     printf "\n== Removing /etc/sudoers.d files with NOPASSWD ==\n"
     find /etc/sudoers.d -type f -exec grep -l 'NOPASSWD' {} \; | xargs -r rm

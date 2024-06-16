@@ -29,9 +29,10 @@ To setup everything, make sure you have the external disk connected which should
 1. Define the parameters in `parameters.sh`
 1. Run `1-host-setup.sh`
 1. Run `2-nas-setup.sh`
-1. Run `3-nas-user-setup.sh`
+1. Run `3-nas-user-setup.sh` for each user to be added as a NAS User
 
 Your Raspberry Pi is now a simple slim NAS ♥♥♥
+
 
 ## Script Description
 
@@ -47,6 +48,15 @@ e.g.
 ```
 DISK_FULL_UUID_PATH="/dev/disk/by-uuid/3980ec2e-6fe3-4c63-8754-18c8ca394446"
 DISK_FULL_MOUNT_PATH="/mnt/backup"
+```
+
+The following command is useful to find the right disk:
+```bash
+# Get a list of disks
+lsblk
+
+# See all disk UUID's and the link destination
+ls -l /dev/disk/by-uuid
 ```
 
 This is needed for the following scripts.
@@ -111,7 +121,14 @@ sudo smartctl -i /dev/sda
 BTRFS commands
 
 ```bash
+# Delete a subvolume
 sudo btrfs subvolume delete [SNAPSHOT_PATH]
+
+# Check if a snapshot is read-only
+btrfs property get /path/to/snapshot ro
+
+# Sets snapshot to read-only
+sudo btrfs property set /path/to/snapshot ro true
 ```
 
 

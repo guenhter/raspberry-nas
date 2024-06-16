@@ -2,6 +2,11 @@
 
 set -e
 
+if [ "$EUID" -ne 0 ]; then
+  echo "This script must be run as root." >&2
+  exit 1
+fi
+
 SCRIPT_DIR=$(dirname -- "$( readlink -f -- "$0"; )")
 
 if [ ! -f "$SCRIPT_DIR/parameters.sh" ]; then

@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]; then
+  echo "This script must be run as root." >&2
+  exit 1
+fi
+
 DISK_FULL_MOUNT_PATH="$1"
 
 if [ -z "$DISK_FULL_MOUNT_PATH" ]; then
@@ -23,7 +28,6 @@ for user_dir in "$DISK_FULL_MOUNT_PATH"/sftp/*/; do
     else
         date=$(date '+%Y-%m-%d')
         new_snapshot_dir="$snapshots_dir/$date"
-        echo "Create snapshot for '$latest_dir' to '$new_snapshot_dir'"
         btrfs subvolume snapshot -r "$latest_dir" "$new_snapshot_dir"
     fi
 done
