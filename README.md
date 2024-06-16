@@ -20,6 +20,8 @@ Limitations:
 * Windows user need to install some additional software to access SFTP (see below)
 
 
+> :warning: **Still under active development with many breaking changes**
+
 # Setup
 
 To setup everything, make sure you have the external disk connected which should be used as NAS disk.
