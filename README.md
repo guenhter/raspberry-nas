@@ -165,3 +165,16 @@ sudo hd-idle -c ata -t /dev/sda
 
 Also modifying the `/etc/default/hd-idle` file and adding this option `-l /var/log/hd-idle.log` can help.
 
+
+
+## Contribution
+
+Contribution are always welcome in any form.
+
+You acknowledge and agree that the owner reserve the right to change the license of the Work, including but not limited to all Contributions previously submitted by You, at any time without the need for approval from You or any other contributor.
+
+## License
+
+This project is licensed under the [MIT license].
+
+[MIT license]: https://github.com/guenhter/raspberry-nas/blob/main/LICENSE
