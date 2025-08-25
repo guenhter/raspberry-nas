@@ -141,6 +141,9 @@ To use the SFTP share on Windows, these to programs need to be installed
 ```ps1
 # https://github.com/winfsp/sshfs-win
 winget install -h -e --id "WinFsp.WinFsp" ; winget install -h -e --id "SSHFS-Win.SSHFS-Win"
+
+# Also install a UI
+winget install -h -e --id "evsar3.sshfs-win-manager"
 ```
 
 After installing this prerequisites, a network drive can be mapped with an address like this:
