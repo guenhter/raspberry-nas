@@ -72,24 +72,6 @@ EOF
     systemctl enable "$systemd_service_prefix.automount"
 }
 
-function configure_ssh_for_sftp() {
-    printf "\n== Configure SSH for SFTP ==\n"
-
-    sed -i '/^\s*Subsystem\s*sftp/ s/^/#/' /etc/ssh/sshd_config
-
-    cat >"/etc/ssh/sshd_config.d/sftp.conf" <<EOF
-Subsystem sftp internal-sftp
-
-Match Group sftpusers
-	X11Forwarding no
-	AllowTcpForwarding no
-	ChrootDirectory $DISK_FULL_MOUNT_PATH/sftp/%u
-	ForceCommand internal-sftp
-EOF
-
-    systemctl restart sshd
-}
-
 function install_snapshot_cron_script() {
     printf "\n== Installing the script 'create-btrfs-snapshot.sh' as cron ==\n"
 
@@ -101,7 +83,80 @@ function install_snapshot_cron_script() {
 EOF
 }
 
+function configure_ssh_for_sftp() {
+    printf "\n== Configure SSH for SFTP ==\n"
+
+    sed -i '/^\s*Subsystem\s*sftp/ s/^/#/' /etc/ssh/sshd_config
+
+    # Create samba group
+    getent group backupusers || groupadd backupusers
+
+    cat >"/etc/ssh/sshd_config.d/sftp.conf" <<EOF
+Subsystem sftp internal-sftp
+
+Match Group backupusers
+	X11Forwarding no
+	AllowTcpForwarding no
+	ChrootDirectory $DISK_FULL_MOUNT_PATH/sftp/%u
+	ForceCommand internal-sftp
+EOF
+
+    systemctl restart sshd
+}
+
+function install_and_configure_samba() {
+    printf "\n== Installing and configuring Samba ==\n"
+
+    # Install Samba
+    apt-get update
+    apt-get install -y samba samba-common-bin
+
+    # Create samba group
+    getent group backupusers || groupadd backupusers
+
+    # Backup original smb.conf
+    if [ ! -f /etc/samba/smb.conf.backup ]; then
+        cp /etc/samba/smb.conf /etc/samba/smb.conf.backup
+    fi
+
+    # Create basic Samba configuration
+    cat > /etc/samba/smb.conf <<EOF
+[global]
+   workgroup = WORKGROUP
+   server string = Raspberry Pi NAS
+   security = user
+   encrypt passwords = yes
+   guest account = nobody
+   map to guest = never
+   create mask = 0664
+   directory mask = 0775
+   force create mode = 0664
+   force directory mode = 0775
+   load printers = no
+   disable spoolss = yes
+   printing = bsd
+   printcap name = /dev/null
+
+# User-specific share configurations will be included below
+EOF
+
+    # Create directory for modular configurations
+    mkdir -p /etc/samba/conf.d
+
+    # Enable and start Samba services
+    systemctl enable smbd
+    systemctl enable nmbd
+    systemctl start smbd
+    systemctl start nmbd
+
+    # Configure firewall if ufw is active
+    if systemctl is-active --quiet ufw; then
+        ufw allow samba
+    fi
+}
+
 
 setup_disk_automount
+install_and_configure_samba
 configure_ssh_for_sftp
 install_snapshot_cron_script
