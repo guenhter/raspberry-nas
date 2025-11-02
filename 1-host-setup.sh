@@ -16,11 +16,19 @@ function disable_sudo_without_password() {
 
 function configure_basic_ssh() {
     printf "\n== Configure basic ssh settings ==\n"
-
-    sed -i 's/.*PermitEmptyPasswords.*/PermitEmptyPasswords no/' /etc/ssh/sshd_config
-    sed -i 's/.*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
-
-    systemctl restart sshd
+    SSHD_CONFIG_DIR="/etc/ssh/sshd_config.d"
+    CONF_FILE="$SSHD_CONFIG_DIR/20-backup.conf"
+    mkdir -p "$SSHD_CONFIG_DIR"
+    if [ -f "$CONF_FILE" ]; then
+        echo "SSH configuration file $CONF_FILE already exists. Skipping."
+        return
+    fi
+    tee "$CONF_FILE" > /dev/null <<EOF
+PermitEmptyPasswords no
+PermitRootLogin no
+EOF
+    echo "Configured SSH by adding $CONF_FILE."
+    systemctl reload ssh || true
 }
 
 function update_system() {
@@ -30,10 +38,6 @@ function update_system() {
     apt-get -y upgrade
     apt-get -y autoremove
     apt-get -y autoclean
-
-    if [ -f /var/run/reboot-required ]; then
-        printf "Rebooting now\n"
-    fi
 }
 
 function install_apt_software() {
@@ -63,11 +67,38 @@ function install_apt_software() {
 function configure_unattended_upgrades() {
     printf "\n== Configuring Unattended Upgrades ==\n"
 
-    sed -i 's/.*Unattended-Upgrade::Automatic-Reboot .*/Unattended-Upgrade::Automatic-Reboot "true";/' /etc/apt/apt.conf.d/50unattended-upgrades
-    sed -i 's/.*Unattended-Upgrade::Automatic-Reboot-Time .*/Unattended-Upgrade::Automatic-Reboot-Time "02:00";/' /etc/apt/apt.conf.d/50unattended-upgrades
+    local auto_config_file="/etc/apt/apt.conf.d/21auto-upgrades"
+    local unattended_upgrades_config_file="/etc/apt/apt.conf.d/51unattended-upgrades"
 
+    echo "Configuring unattended-upgrades for automatic updates..."
+
+    tee "$auto_config_file" > /dev/null <<'EOF'
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+EOF
+
+    tee "$unattended_upgrades_config_file" > /dev/null <<'EOF'
+Unattended-Upgrade::Origins-Pattern {
+    "origin=*";
+};
+Unattended-Upgrade::DevRelease "false";
+Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "02:00";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "true";
+Unattended-Upgrade::Verbose "true";
+EOF
+
+    systemctl daemon-reload
+    systemctl enable unattended-upgrades
     systemctl restart unattended-upgrades
+
+    echo "Unattended-upgrades configured"
 }
+
 
 function install_and_configure_hd_idle() {
     printf "\n== Installing hd-idle ==\n"
@@ -92,3 +123,8 @@ update_system
 install_apt_software
 configure_unattended_upgrades
 install_and_configure_hd_idle
+
+if [ -f /var/run/reboot-required ]; then
+    printf "Rebooting now\n"
+    reboot
+fi

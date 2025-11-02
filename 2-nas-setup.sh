@@ -78,7 +78,7 @@ function install_snapshot_cron_script() {
     mkdir -p /opt/
     cp "$SCRIPT_DIR/create-btrfs-snapshot.sh" /opt/
 
-    cat >"/etc/cron.d/sftp-disk-snapthots" <<EOF
+    cat >"/etc/cron.d/backup-disk-snapthots" <<EOF
 30 3 * * 0 root /opt/create-btrfs-snapshot.sh "$DISK_FULL_MOUNT_PATH"
 EOF
 }
@@ -97,7 +97,7 @@ Subsystem sftp internal-sftp
 Match Group backupusers
 	X11Forwarding no
 	AllowTcpForwarding no
-	ChrootDirectory $DISK_FULL_MOUNT_PATH/sftp/%u
+	ChrootDirectory $DISK_FULL_MOUNT_PATH/%u
 	ForceCommand internal-sftp
 EOF
 

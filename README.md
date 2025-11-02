@@ -25,7 +25,14 @@ Limitations:
 
 To setup the NAS, make sure you have the external disk connected which should be used as NAS disk.
 
-1. Transfer the content of this repository to the Raspberry Pi
+1. ```bash
+   sudo apt update && sudo apt install -y git
+   sudo mkdir -p /opt/
+   cd /opt/
+   sudo git clone https://github.com/guenhter/raspberry-nas.git
+   cd /opt/raspberry-nas
+   sudo cp parameters.sample.sh parameters.sh
+   ```
 1. (Run the destructive script `9-format-disk.sh` if the hard drive is not yet formatted as BTRFS)
 1. Define the parameters in `parameters.sh`
 1. Run `1-host-setup.sh`
@@ -96,17 +103,17 @@ WARNING: ALL DATA ON THE EXTERNAL HARD DRIVE WILL BE LOST WHEN RUNNING THIS SCRI
 The hard drive for the NAS has the following folder structure:
 
 ```
-/mnt/[MOUNT_NAME]/sftp/[USER_NAME]/current
-/mnt/[MOUNT_NAME]/sftp/[USER_NAME]/snapshots/[SNAPSHOT_DATE]
+/mnt/[MOUNT_NAME]/[USER_NAME]/current
+/mnt/[MOUNT_NAME]/[USER_NAME]/snapshots/[SNAPSHOT_DATE]
 ```
 
 
 e.g.
 
 ```
-/mnt/disk1/sftp/alice/current
-/mnt/disk1/sftp/alice/snapshots/2024-01-01
-/mnt/disk1/sftp/alice/snapshots/2024-01-02
+/mnt/disk1/alice/current
+/mnt/disk1/alice/snapshots/2024-01-01
+/mnt/disk1/alice/snapshots/2024-01-02
 ```
 
 

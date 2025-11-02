@@ -16,7 +16,7 @@ fi
 # Remove trailing slashes
 DISK_FULL_MOUNT_PATH="${DISK_FULL_MOUNT_PATH%/}"
 
-for user_dir in "$DISK_FULL_MOUNT_PATH"/sftp/*/; do
+for user_dir in "$DISK_FULL_MOUNT_PATH"/*/; do
     # Remove trailing slashes
     user_dir="${user_dir%/}"
 
