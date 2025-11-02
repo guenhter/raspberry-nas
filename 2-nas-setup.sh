@@ -75,11 +75,8 @@ EOF
 function install_snapshot_cron_script() {
     printf "\n== Installing the script 'create-btrfs-snapshot.sh' as cron ==\n"
 
-    mkdir -p /opt/
-    cp "$SCRIPT_DIR/create-btrfs-snapshot.sh" /opt/
-
     cat >"/etc/cron.d/backup-disk-snapthots" <<EOF
-30 3 * * 0 root /opt/create-btrfs-snapshot.sh "$DISK_FULL_MOUNT_PATH"
+30 3 * * 0 root $SCRIPT_DIR/create-btrfs-snapshot.sh "$DISK_FULL_MOUNT_PATH"
 EOF
 }
 
