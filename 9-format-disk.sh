@@ -23,6 +23,11 @@ function get_system_disk() {
     fi
 }
 
+if ! command -v mkfs.btrfs &>/dev/null; then
+    printf 'mkfs.btrfs not found, installing btrfs-progs...\n'
+    apt-get -y install btrfs-progs
+fi
+
 system_disk=$(get_system_disk)
 candidates=()
 
