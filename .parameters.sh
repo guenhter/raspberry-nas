@@ -45,13 +45,15 @@ function collect_disk_uuid_candidates() {
 
         fs_type=$(lsblk -no FSTYPE "$resolved_path" 2>/dev/null | head -n 1)
         [ -n "$fs_type" ] || continue
+        [ "$fs_type" = "swap" ] && continue
 
         parent_device=$(lsblk -no PKNAME "$resolved_path" 2>/dev/null | head -n 1)
         if [ -n "$root_parent" ] && [ -n "$parent_device" ] && [ "/dev/$parent_device" = "$root_parent" ]; then
             continue
         fi
 
-        printf '%s|%s|%s\n' "$uuid_path" "$resolved_path" "$fs_type"
+        size=$(lsblk -no SIZE "$resolved_path" 2>/dev/null | head -n 1)
+        printf '%s|%s|%s|%s\n' "$uuid_path" "$resolved_path" "$fs_type" "$size"
     done
 }
 
@@ -63,6 +65,7 @@ function prompt_disk_full_uuid_path() {
     local uuid_path
     local resolved_path
     local fs_type
+    local size
 
     mapfile -t candidates < <(collect_disk_uuid_candidates)
 
@@ -79,8 +82,8 @@ function prompt_disk_full_uuid_path() {
     fi
 
     for entry in "${candidates[@]}"; do
-        IFS='|' read -r uuid_path resolved_path fs_type <<< "$entry"
-        printf '%s) %s -> %s [%s]\n' "$index" "$uuid_path" "$resolved_path" "$fs_type"
+        IFS='|' read -r uuid_path resolved_path fs_type size <<< "$entry"
+        printf '%s) %s -> %s [%s, %s]\n' "$index" "$uuid_path" "$resolved_path" "$fs_type" "$size"
         index=$((index + 1))
     done
 
