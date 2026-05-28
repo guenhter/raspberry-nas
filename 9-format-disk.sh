@@ -29,9 +29,12 @@ candidates=()
 while IFS= read -r line; do
     name=$(awk '{print $1}' <<< "$line")
     size=$(awk '{print $2}' <<< "$line")
+    type=$(awk '{print $3}' <<< "$line")
+    [ "$type" = "disk" ] || continue
+    [[ "$name" == /dev/loop* || "$name" == /dev/zram* ]] && continue
     [ "$name" = "$system_disk" ] && continue
     candidates+=("$name|$size")
-done < <(lsblk -dpno NAME,SIZE)
+done < <(lsblk -dpno NAME,SIZE,TYPE)
 
 if [ "${#candidates[@]}" -eq 0 ]; then
     printf 'No external disks found.\n' >&2
