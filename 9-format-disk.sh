@@ -7,10 +7,15 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/.parameters.sh"
+
 disk_path="$1"
 disk_label="$2"
 
-if [ -z "$disk_path" ] || [-z "$disk_label" ]; then
+if [ -z "$disk_path" ] || [ -z "$disk_label" ]; then
     echo "Usage: $0 [DISK_PATH] [NEW_DISK_LABEL]"
     echo "    e.g. $0 /dev/sda disk1"
     exit 1

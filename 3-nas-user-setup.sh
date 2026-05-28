@@ -7,7 +7,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-SCRIPT_DIR=$(dirname -- "$( readlink -f -- "$0"; )")
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 user_name="$1"
 
@@ -16,18 +16,9 @@ if [ -z "$user_name" ]; then
     exit 1
 fi
 
-if [ ! -f "$SCRIPT_DIR/parameters.sh" ]; then
-    printf "Canont load parameters from ./parameters.sh\n"
-    exit 1
-fi
-
 printf "\n== Loading parameters ==\n"
-source "$SCRIPT_DIR/parameters.sh"
-
-if [ -z "$DISK_FULL_MOUNT_PATH" ]; then
-    printf "Variable DISK_FULL_MOUNT_PATH is not set in the parameters file\n"
-    exit 1
-fi
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/.parameters.sh"
 
 
 # https://reintech.io/blog/setting-up-sftp-secure-file-transfers-debian-12

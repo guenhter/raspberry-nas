@@ -5,13 +5,10 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-DISK_FULL_MOUNT_PATH="$1"
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
-if [ -z "$DISK_FULL_MOUNT_PATH" ]; then
-  echo "Usage: $0 [DISK_FULL_MOUNT_PATH]"
-  echo "  e.g. $0 /mnt/disk1"
-  exit 1
-fi
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/.parameters.sh"
 
 # Remove trailing slashes
 DISK_FULL_MOUNT_PATH="${DISK_FULL_MOUNT_PATH%/}"

@@ -31,12 +31,10 @@ To setup the NAS, make sure you have the external disk connected which should be
    cd /opt/
    sudo git clone https://github.com/guenhter/raspberry-nas.git
    cd /opt/raspberry-nas
-   sudo cp parameters.sample.sh parameters.sh
    ```
 1. (Run the destructive script `9-format-disk.sh` if the hard drive is not yet formatted as BTRFS)
-1. Define the parameters in `parameters.sh`
 1. Run `1-host-setup.sh`
-1. Run `2-nas-setup.sh`
+1. Run `2-nas-setup.sh` interactively. If `.env` is missing or incomplete, it will be created for you.
 1. Run `3-nas-user-setup.sh` for each user to be added as a NAS User
 
 Your Raspberry Pi is now a simple slim NAS ♥♥♥
@@ -44,30 +42,9 @@ Your Raspberry Pi is now a simple slim NAS ♥♥♥
 
 ## Script Description
 
-### parameters.sh
+### Configuration
 
-In this script, define these variables:
-
-* DISK_FULL_UUID_PATH
-* DISK_FULL_MOUNT_PATH
-
-e.g.
-
-```
-DISK_FULL_UUID_PATH="/dev/disk/by-uuid/3980ec2e-6fe3-4c63-8754-18c8ca394446"
-DISK_FULL_MOUNT_PATH="/mnt/backup"
-```
-
-The following command is useful to find the right disk:
-```bash
-# Get a list of disks
-lsblk
-
-# See all disk UUID's and the link destination
-ls -l /dev/disk/by-uuid
-```
-
-This is needed for the following scripts.
+On first run, each script interactively prompts for any missing parameters and stores them in a `.env` file for subsequent runs.
 
 ### 1-host-setup.sh
 
@@ -79,15 +56,11 @@ The first script to be executed. Some basic system setup is done which is not NA
 Setup the disk mounts and configures the SAMBA and SFTP working dir for the specified disk.
 The disk itself is not touched (e.g. formattted) in any way. To prepare the disk (format and partition), the script `9-format-disk.sh` can be used.
 
-The `parameters.sh` script is mandatory.
-
 
 ### 3-nas-user-setup.sh
 
 This script adds a new user to be used via SAMBA/SFTP. It is a interactive script because the password for the user needs to be entered.
 After this script is executed successfully, the SAMBA/SFTP share is usable.
-
-The `parameters.sh` script is mandatory.
 
 
 ### 9-format-disk.sh

@@ -9,6 +9,11 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/.parameters.sh"
+
 function disable_sudo_without_password() {
     printf "\n== Removing /etc/sudoers.d files with NOPASSWD ==\n"
     find /etc/sudoers.d -type f -exec grep -l 'NOPASSWD' {} \; | xargs -r rm

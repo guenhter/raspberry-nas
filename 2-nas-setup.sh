@@ -7,20 +7,11 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-SCRIPT_DIR=$(dirname -- "$( readlink -f -- "$0"; )")
-
-if [ ! -f "$SCRIPT_DIR/parameters.sh" ]; then
-    printf "Canont load parameters from ./parameters.sh\n"
-    exit 1
-fi
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
 
 printf "\n== Loading parameters ==\n"
-source "$SCRIPT_DIR/parameters.sh"
-
-if [ -z "$DISK_FULL_UUID_PATH" ] || [ -z "$DISK_FULL_MOUNT_PATH" ]; then
-    printf "Not all required variables defined in the parameters file.\n"
-    exit 1
-fi
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/.parameters.sh"
 
 
 function setup_disk_automount() {
@@ -76,7 +67,7 @@ function install_snapshot_cron_script() {
     printf "\n== Installing the script 'create-btrfs-snapshot.sh' as cron ==\n"
 
     cat >"/etc/cron.d/backup-disk-snapthots" <<EOF
-30 3 * * 0 root $SCRIPT_DIR/create-btrfs-snapshot.sh "$DISK_FULL_MOUNT_PATH"
+30 3 * * 0 root $SCRIPT_DIR/create-btrfs-snapshot.sh
 EOF
 }
 
